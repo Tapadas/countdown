@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import CountdownDisplay from "./countdown-display";
 import { Orbitron } from "next/font/google";
 import { Grid } from "@mui/material";
+import moment from "moment";
 
 const orbitron = Orbitron({ subsets: ["latin"] });
 
@@ -14,7 +15,12 @@ interface TimeLeft {
 }
 
 const Countdown = () => {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft>(calculateTimeLeft());
+  const [timeLeft, setTimeLeft] = useState<TimeLeft>({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -24,15 +30,17 @@ const Countdown = () => {
   }, []);
 
   function calculateTimeLeft(): TimeLeft {
-    const endDate = new Date("2024-09-20T00:00:00");
-    const now = new Date();
-    const gap = endDate.getTime() - now.getTime();
+    const endDate = moment("2024-09-20");
+    const currentDate = moment(new Date());
+    const difference = endDate.diff(currentDate);
+    const duration = moment.duration(difference);
 
-    const days = Math.floor(gap / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((gap % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((gap % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((gap % (1000 * 60)) / 1000);
-    return { days, hours, minutes, seconds };
+    return {
+      days: Math.floor(duration.asDays()),
+      hours: duration.hours(),
+      minutes: duration.minutes(),
+      seconds: duration.seconds(),
+    };
   }
 
   return (
